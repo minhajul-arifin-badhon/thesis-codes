@@ -120,6 +120,12 @@ class WheatDataset:
             return utils.xyxy_to_poly(utils.xywh_to_xyxy(xywh_boxes))
 
         return xywh_boxes
+    
+    def get_dataset_bboxes(self, r_format="XYXY"):
+        all_bboxes = {}
+        for image in self._images.values():
+            all_bboxes[image["file_name"]] = self.get_bboxes_of_image(image["file_name"], r_format)
+        return all_bboxes
 
     def get_dataset_dataframe(self):
         rows = []
