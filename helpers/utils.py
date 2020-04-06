@@ -70,6 +70,13 @@ def show_poly_anno(filename, b_boxes=[], title=None, sep=False, f_size=(10, 10))
     plt.show()
 
 
+def draw_plot_xy(x, y, title):
+    plt.figure()
+    plt.plot(x, y)
+    plt.title(title)
+    plt.show()
+
+
 # gt_boxes numpy, pred_boxes numpy
 def match_detections(gt_boxes, pred_boxes, iou_thresh, show_plot = False, filename=""):
     matched = {}
