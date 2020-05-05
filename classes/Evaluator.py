@@ -32,6 +32,9 @@ class Evaluator:
         self._epoch = epoch
         self._model =  init_detector(self._path_config, os.path.join(self._path_work_dir, 'epoch_' + str(epoch) + '.pth'), device='cuda:0')
 
+    def get_model(self):
+        return self._model
+
     def predict_single_image(self, path_image, display_predicition=False, r_dict=False):
         detections = np.array(inference_detector(self._model, path_image)[0])
         if detections.shape[1] <= 5:

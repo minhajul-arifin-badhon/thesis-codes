@@ -39,7 +39,7 @@ def get_poly_iou(box1, box2):
     return polyiou.iou_poly(polyiou.VectorDouble(box1), polyiou.VectorDouble(box2))
 
 
-def show_poly_anno(filename, b_boxes=[], title=None, sep=False, f_size=(10, 10)):
+def show_poly_anno(filename, b_boxes=[], title=None, sep=False, f_size=(10, 10), isSave=False, path=None):
     im = np.array(Image.open(filename), dtype=np.uint8)
     ln = len(b_boxes)
     fig, ax = plt.subplots(1, ln if sep else 1, figsize=f_size)
@@ -67,7 +67,12 @@ def show_poly_anno(filename, b_boxes=[], title=None, sep=False, f_size=(10, 10))
             else:
                 ax.add_patch(poly)
 
-    plt.show()
+    if isSave:
+        plt.savefig(path, format="png")
+    else:
+        plt.show()
+
+    plt.close()
 
 
 def draw_plot_xy(x, y, title):
@@ -186,3 +191,23 @@ def match_detections(gt_boxes, pred_boxes, iou_thresh, show_plot = False, filena
 
 
     return t_p, f_p, f_n, ignored
+
+
+def get_rgb_image(image):
+    if len(image.shape) > 2 and image.shape[2] == 4:
+        return color.rgba2rgb(image)
+    return image
+
+
+def display_image(image, isGray=False, isLarge=True, size=20):
+    if isLarge:
+        plt.figure(figsize=(size, size))
+    else:
+        plt.figure()
+
+    if isGray:
+        plt.imshow(image, cmap="gray")
+    else:
+        plt.imshow(image)
+
+    plt.show()
