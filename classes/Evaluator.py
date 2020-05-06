@@ -35,7 +35,7 @@ class Evaluator:
     def get_model(self):
         return self._model
 
-    def predict_single_image(self, path_image, display_predicition=False, r_dict=False):
+    def predict_single_image(self, path_image, confidence_score=None, display_predicition=False, r_dict=False):
         detections = np.array(inference_detector(self._model, path_image)[0])
         if detections.shape[1] <= 5:
 #             print(detections)
@@ -43,6 +43,9 @@ class Evaluator:
             bboxes = utils.xyxy_to_poly(detections[:,:4], True)
             detections = np.concatenate((bboxes, confidence.T), axis=1)
 #             print(detections)
+
+        if confidence_score is not None:
+            detections = detections[detections[:,4] >= confidence_score]
 
         if display_predicition:
             utils.show_poly_anno(
@@ -62,12 +65,12 @@ class Evaluator:
         end = limit[1] if limit else len(filenames)
         return filenames[start:end]
 
-    def predict_image_folder(self, path_folder, limit=None, display_predicition=False):
+    def predict_image_folder(self, path_folder, limit=None, confidence_score=None, display_predicition=False):
         filenames = self.file_range(path_folder, limit)
 
         all_dets = {}
         for path_image in filenames:
-            all_dets[path_image] = self.predict_single_image(os.path.join(path_folder, path_image), display_predicition)
+            all_dets[path_image] = self.predict_single_image(os.path.join(path_folder, path_image), confidence_score, display_predicition)
         return all_dets
 
     def evaluate_single_image(self, path_image, gt_boxes, thresh=0.5, use_07_metric=False, r_metrics = None):
@@ -81,14 +84,14 @@ class Evaluator:
             res = [res['metric'] for metric in r_metrics]
         return res
 
-    def evaluate_image_folder(self, path_folder, limit=None, all_gts={}, thresh=0.5, use_07_metric=False, r_metrics = None):
+    def evaluate_image_folder(self, path_folder, limit=None, all_gts={}, thresh=0.5, confidence_score=None, use_07_metric=False, r_metrics = None):
         filenames = self.file_range(path_folder, limit)
 
         for key in list(all_gts.keys()):
             if key not in filenames:
                 all_gts.pop(key, None)
 
-        all_dets = self.predict_image_folder(path_folder, limit)
+        all_dets = self.predict_image_folder(path_folder, limit, confidence_score)
 
         res = evaluation.voc_eval(all_gts, all_dets, thresh, use_07_metric)
 
